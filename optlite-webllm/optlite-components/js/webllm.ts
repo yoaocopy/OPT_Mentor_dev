@@ -53,7 +53,8 @@ function processMessageFormat(message) {
         } else if (char === "<") {
             // 检查是否是"<|im_end|>"
             const remainingText = message.substring(i);
-            if (remainingText.startsWith("<|im_end|>")) {
+            // 暂时关闭结束标记
+            if (false && remainingText.startsWith("<|im_end|>")) {
                 // 找到结束标记，停止处理并标记需要停止生成
                 shouldStopGeneration = true;
                 break;
@@ -120,6 +121,7 @@ async function streamingGenerating(messages, onUpdate, onFinish, onError) {
         const completion = await engine.chat.completions.create({
             stream: true,
             messages,
+            max_tokens:500,
             stream_options: { include_usage: true },
         });
         for await (const chunk of completion) {
@@ -148,12 +150,26 @@ function onMessageSend(input) {
     if (input.length === 0) {
         return;
     }
+    
+    // 从网页输入框获取系统提示词，如果没有则使用默认值
+    const systemPromptInput = document.getElementById('system-prompt-input') as HTMLTextAreaElement;
+    const systemPrompt = systemPromptInput ? systemPromptInput.value.trim() : "You are a helpful AI agent helping users.";
+    
+    // 每次发送消息时创建新的会话
+    const sessionMessages = [
+        {
+            content: systemPrompt || "You are a helpful AI agent helping users.", // 使用用户输入或默认值
+            role: "system",
+        },
+        message
+    ];
+    
     //document.getElementById("send").disabled = true;
     document.getElementById("message-out").classList.remove("hidden");
     document.getElementById("message-out").textContent = "AI is thinking...";
 
-    messages.push(message);
-
+    // 不再将消息添加到全局 messages 数组
+    // messages.push(message);
 
     // const onFinishGenerating = (finalMessage, usage) => {
     //     document.getElementById("message-out").textContent = "AI Response:\n" + finalMessage;
@@ -191,7 +207,8 @@ function onMessageSend(input) {
     };
 
     streamingGenerating(
-        messages,
+        // messages,
+        sessionMessages, // 使用新的会话消息数组
         (msg) => {
             // 应用特殊格式处理
             const { processedMessage, shouldStopGeneration } = processMessageFormat(msg);
@@ -375,12 +392,48 @@ document.addEventListener('DOMContentLoaded', function() {
     const askAIButton = document.getElementById('askAI') as HTMLButtonElement;
     
     if (clearMemoryBtn) {
-        clearMemoryBtn.addEventListener('click', clearMemory);
+        // 临时隐藏 clearMemory 按钮
+        clearMemoryBtn.style.display = 'none';
+        // clearMemoryBtn.addEventListener('click', clearMemory);
     }
     
     // 确保Ask AI按钮在禁用状态时有正确的提示
     if (askAIButton && askAIButton.disabled) {
         askAIButton.title = "Select and pull model first";
+    }
+    
+    // 初始化系统提示词输入框和下拉框
+    const systemPromptInput = document.getElementById('system-prompt-input') as HTMLTextAreaElement;
+    const systemPromptSelect = document.getElementById('system-prompt-select') as HTMLSelectElement;
+    
+    if (systemPromptInput && systemPromptSelect) {
+        // 设置默认值
+        systemPromptInput.value = "You are a helpful AI agent helping users.";
+        
+        // 添加下拉框选择事件监听器
+        systemPromptSelect.addEventListener('change', function() {
+            const selectedValue = this.value;
+            if (selectedValue) {
+                // 当选择预设提示词时，自动填入文本框
+                systemPromptInput.value = selectedValue;
+                // 保存到localStorage
+                localStorage.setItem('optlite-system-prompt', selectedValue);
+                // 重置下拉框选择
+                this.value = '';
+            }
+        });
+        
+        // 添加文本框输入事件监听器，实时保存用户输入
+        systemPromptInput.addEventListener('input', function() {
+            // 可以将用户输入保存到 localStorage 中，这样刷新页面后不会丢失
+            localStorage.setItem('optlite-system-prompt', this.value);
+        });
+        
+        // 从 localStorage 恢复用户之前输入的内容
+        const savedPrompt = localStorage.getItem('optlite-system-prompt');
+        if (savedPrompt) {
+            systemPromptInput.value = savedPrompt;
+        }
     }
 });
 
