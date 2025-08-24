@@ -75,7 +75,7 @@
             
               <!-- 添加系统提示词设置 -->
               <div style="margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;">
-                <label for="system-prompt-select" style="display: block; margin-bottom: 5px; font-weight: bold;">System Prompt:</label>
+                <label for="system-prompt-input" style="display: block; margin-bottom: 5px; font-weight: bold;">System Prompt:</label>
                 
                 <!-- 添加预设选项下拉框 -->
                 <div style="margin-bottom: 10px;">
@@ -93,9 +93,29 @@
                 </div>
               </div>
 
+              <!-- 添加问题模板设置 -->
+              <div style="margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;">
+                <label for="question-template-input" style="display: block; margin-bottom: 5px; font-weight: bold;">Question Template:</label>
+                
+                <!-- 添加预设问题模板下拉框 -->
+                <div style="margin-bottom: 10px;">
+                  <select id="question-template-select" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 3px; margin-bottom: 8px;">
+                    <option value="">-- Select a preset template --</option>
+                    <option value="I'm writing Python, and here's my code: {code} and I received this error: {error} Hint in Socratic style:">Socratic Style</option>
+                    <option value="I have Python code: {code} that's giving me this error: {error} Please help me understand what's wrong:">Simple Help</option>
+                    <option value="Code: {code} Error: {error} Can you explain this error and guide me to fix it?">Direct Question</option>
+                  </select>
+                </div>
+                
+                <textarea id="question-template-input" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 3px; font-family: monospace; resize: vertical;" placeholder="Enter your question template here... Use {code} for code and {error} for error message">I'm writing Python, and here's my code: {code} and I received this error: {error} Hint in Socratic style:</textarea>
+                <div style="margin-top: 5px; font-size: 12px; color: #666;">
+                  Use {code} to represent your code and {error} to represent the error message. Select a preset template or create your own.
+                </div>
+              </div>
+
               <div style="display: flex; gap: 10px; margin-bottom: 10px;">
                 <button id="askAI" disabled title="Select and pull model first">Ask AI</button>
-                <button id="clearMemory" disabled>Clear Memory</button>
+                <button id="clearMemory" disabled style="display: none;">Clear Memory</button>
               </div>
 
            
@@ -154,6 +174,16 @@
         </select>
       </div>
 
+      <!-- 添加发送给大模型的内容显示区域 -->
+      <div id="sent-content-display" style="margin-top: 20px; padding: 15px; border: 2px solid #007acc; border-radius: 8px; background-color: #f0f8ff; display: none;">
+        <h4 style="margin: 0 0 10px 0; color: #007acc; font-size: 14px;">📤 Sent to AI Model:</h4>
+        <div id="sent-content-text" style="font-family: monospace; white-space: pre-wrap; background-color: #fff; padding: 10px; border: 1px solid #ddd; border-radius: 4px; max-height: 300px; overflow-y: auto; font-size: 12px; line-height: 1.4;"></div>
+        <div style="margin-top: 8px; font-size: 11px; color: #666;">
+          <strong>System Prompt:</strong> <span id="sent-system-prompt"></span><br>
+          <strong>User Question:</strong> <span id="sent-user-question"></span>
+        </div>
+      </div>
+
       <% if (htmlWebpackPlugin.options.unsupportedBrowser) { %>
         <style>
           .unsupported-browser {
@@ -162,7 +192,7 @@
         </style>
         <div class="unsupported-browser">
           Sorry, your browser is not supported. Please upgrade to
-          the latest version or switch your browser to use this site.
+          the latest version or switch your browser to switch your browser to use this site.
           See <a href="http://outdatedbrowser.com/">outdatedbrowser.com</a>
           for options.
         </div>

@@ -164,6 +164,9 @@ function onMessageSend(input) {
         message
     ];
     
+    // 显示发送给大模型的内容
+    displaySentContent(sessionMessages);
+    
     //document.getElementById("send").disabled = true;
     document.getElementById("message-out").classList.remove("hidden");
     document.getElementById("message-out").textContent = "AI is thinking...";
@@ -228,6 +231,34 @@ function onMessageSend(input) {
     );
 }
 
+// 添加显示发送内容的函数
+function displaySentContent(sessionMessages) {
+    const sentContentDisplay = document.getElementById('sent-content-display');
+    const sentContentText = document.getElementById('sent-content-text');
+    const sentSystemPrompt = document.getElementById('sent-system-prompt');
+    const sentUserQuestion = document.getElementById('sent-user-question');
+    
+    if (sentContentDisplay && sentContentText && sentSystemPrompt && sentUserQuestion) {
+        // 显示整个发送区域
+        sentContentDisplay.style.display = 'block';
+        
+        // 格式化显示内容
+        const formattedContent = sessionMessages.map(msg => {
+            return `[${msg.role.toUpperCase()}]:\n${msg.content}\n`;
+        }).join('\n');
+        
+        // 显示完整内容
+        sentContentText.textContent = formattedContent;
+        
+        // 分别显示系统提示词和用户问题
+        sentSystemPrompt.textContent = sessionMessages[0].content;
+        sentUserQuestion.textContent = sessionMessages[1].content;
+        
+        // 自动滚动到底部
+        sentContentText.scrollTop = sentContentText.scrollHeight;
+    }
+}
+
 // Option 1: If getCode is exported from opt-frontend.ts
 
 
@@ -235,12 +266,18 @@ function onMessageSend(input) {
 document.getElementById("askAI").addEventListener("click", function () {
     //const frontend = new OptFrontend();
 
-    // var question = "I'm writing Python, and here's my code: "+extractText()+" and I received this error: " + document.getElementById("frontendErrorOutput").textContent?.replace("(UNSUPPORTED FEATURES)", "") +
-    // "Can you please provide a brief explanation of the cause of this error? I only need the reason., No code solution needed.";
-
-    var question = "I'm writing Python, and here's my code: "+extractText()+" and I received this error: " + document.getElementById("frontendErrorOutput").textContent?.replace("(UNSUPPORTED FEATURES)", "") +
-    "Hint in Socratic style:"; 
-
+    // 从网页输入框获取问题模板，如果没有则使用默认值
+    const questionTemplateInput = document.getElementById('question-template-input') as HTMLTextAreaElement;
+    const questionTemplate = questionTemplateInput ? questionTemplateInput.value.trim() : DEFAULT_QUESTION_TEMPLATE;
+    
+    // 获取代码和错误信息
+    const codeText = extractText();
+    const errorText = document.getElementById("frontendErrorOutput").textContent?.replace("(UNSUPPORTED FEATURES)", "") || "";
+    
+    // 使用模板生成问题
+    const question = questionTemplate
+        .replace('{code}', codeText)
+        .replace('{error}', errorText);
 
     document.getElementById("chat-stats").classList.add("hidden");
     onMessageSend(question);
@@ -373,7 +410,7 @@ function showLastModified() {
     // 推荐用构建时注入的字符串，下面用 Date.now() 作为例子
     // const lastModified = "Last modified: " + new Date(/*BUILD_TIMESTAMP*/ Date.now()).toLocaleString();
     //手动修改信息，用于验证页面是否已更新
-    const lastModified = "Last modified: " + "2507181130";
+    const lastModified = "Last modified: " + "2508250400";
     let modDiv = document.getElementById("last-modified-block");
     if (!modDiv) {
         modDiv = document.createElement("div");
@@ -385,6 +422,10 @@ function showLastModified() {
 }
 
 document.addEventListener('DOMContentLoaded', showLastModified);
+
+// 在文件顶部添加默认值常量
+const DEFAULT_SYSTEM_PROMPT = "You are a helpful AI agent helping users.";
+const DEFAULT_QUESTION_TEMPLATE = "I'm writing Python, and here's my code: {code} and I received this error: {error} Hint in Socratic style:";
 
 // 添加Clear Memory按钮事件监听器
 document.addEventListener('DOMContentLoaded', function() {
@@ -408,7 +449,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (systemPromptInput && systemPromptSelect) {
         // 设置默认值
-        systemPromptInput.value = "You are a helpful AI agent helping users.";
+        systemPromptInput.value = DEFAULT_SYSTEM_PROMPT;
         
         // 添加下拉框选择事件监听器
         systemPromptSelect.addEventListener('change', function() {
@@ -433,6 +474,40 @@ document.addEventListener('DOMContentLoaded', function() {
         const savedPrompt = localStorage.getItem('optlite-system-prompt');
         if (savedPrompt) {
             systemPromptInput.value = savedPrompt;
+        }
+    }
+    
+    // 初始化问题模板输入框和下拉框
+    const questionTemplateInput = document.getElementById('question-template-input') as HTMLTextAreaElement;
+    const questionTemplateSelect = document.getElementById('question-template-select') as HTMLSelectElement;
+    
+    if (questionTemplateInput && questionTemplateSelect) {
+        // 设置默认值
+        questionTemplateInput.value = DEFAULT_QUESTION_TEMPLATE;
+        
+        // 添加下拉框选择事件监听器
+        questionTemplateSelect.addEventListener('change', function() {
+            const selectedValue = this.value;
+            if (selectedValue) {
+                // 当选择预设模板时，自动填入文本框
+                questionTemplateInput.value = selectedValue;
+                // 保存到localStorage
+                localStorage.setItem('optlite-question-template', selectedValue);
+                // 重置下拉框选择
+                this.value = '';
+            }
+        });
+        
+        // 添加文本框输入事件监听器，实时保存用户输入
+        questionTemplateInput.addEventListener('input', function() {
+            // 可以将用户输入保存到 localStorage 中，这样刷新页面后不会丢失
+            localStorage.setItem('optlite-question-template', this.value);
+        });
+        
+        // 从 localStorage 恢复用户之前输入的内容
+        const savedTemplate = localStorage.getItem('optlite-question-template');
+        if (savedTemplate) {
+            questionTemplateInput.value = savedTemplate;
         }
     }
 });
