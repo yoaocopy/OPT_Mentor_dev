@@ -167,6 +167,14 @@ function onMessageSend(input) {
     // 显示发送给大模型的内容
     displaySentContent(sessionMessages);
     
+    // 启用停止按钮，禁用Ask AI按钮
+    const stopButton = document.getElementById('stopGeneration') as HTMLButtonElement;
+    const askAIButton = document.getElementById('askAI') as HTMLButtonElement;
+    if (stopButton && askAIButton) {
+        stopButton.disabled = false;
+        askAIButton.disabled = true;
+    }
+    
     //document.getElementById("send").disabled = true;
     document.getElementById("message-out").classList.remove("hidden");
     document.getElementById("message-out").textContent = "AI is thinking...";
@@ -206,7 +214,23 @@ function onMessageSend(input) {
         `decoding: ${usage.extra.decode_tokens_per_s.toFixed(4)} tokens/sec`;
         document.getElementById("chat-stats").classList.remove("hidden");
         document.getElementById("chat-stats").textContent = usageText;
-        //document.getElementById("send").disabled = false;
+        
+        // 生成完成后，重新启用Ask AI按钮，禁用停止按钮
+        if (stopButton && askAIButton) {
+            stopButton.disabled = true;
+            askAIButton.disabled = false;
+        }
+    };
+
+    const onError = (err) => {
+        document.getElementById("message-out").textContent = "Error: " + err;
+        console.error(err);
+        
+        // 发生错误时，重新启用Ask AI按钮，禁用停止按钮
+        if (stopButton && askAIButton) {
+            stopButton.disabled = true;
+            askAIButton.disabled = false;
+        }
     };
 
     streamingGenerating(
@@ -223,12 +247,33 @@ function onMessageSend(input) {
             }
         },
         onFinishGenerating,
-        (err) => {
-            document.getElementById("message-out").textContent = "Error: " + err;
-            console.error(err);
-        }
-
+        onError
     );
+}
+
+// 添加停止生成函数
+function stopGeneration() {
+    try {
+        // 中断AI生成
+        if (engine && typeof engine.interruptGenerate === 'function') {
+            engine.interruptGenerate();
+        }
+        
+        // 更新UI状态
+        document.getElementById("message-out").textContent = "Generation stopped by user.";
+        
+        // 重新启用Ask AI按钮，禁用停止按钮
+        const stopButton = document.getElementById('stopGeneration') as HTMLButtonElement;
+        const askAIButton = document.getElementById('askAI') as HTMLButtonElement;
+        if (stopButton && askAIButton) {
+            stopButton.disabled = true;
+            askAIButton.disabled = false;
+        }
+        
+        console.log("AI generation stopped by user");
+    } catch (error) {
+        console.error("Error stopping generation:", error);
+    }
 }
 
 // 添加显示发送内容的函数
@@ -431,6 +476,7 @@ const DEFAULT_QUESTION_TEMPLATE = "I'm writing Python, and here's my code: {code
 document.addEventListener('DOMContentLoaded', function() {
     const clearMemoryBtn = document.getElementById('clearMemory') as HTMLButtonElement;
     const askAIButton = document.getElementById('askAI') as HTMLButtonElement;
+    const stopButton = document.getElementById('stopGeneration') as HTMLButtonElement;
     
     if (clearMemoryBtn) {
         // 临时隐藏 clearMemory 按钮
@@ -441,6 +487,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // 确保Ask AI按钮在禁用状态时有正确的提示
     if (askAIButton && askAIButton.disabled) {
         askAIButton.title = "Select and pull model first";
+    }
+    
+    // 添加停止按钮事件监听器
+    if (stopButton) {
+        stopButton.addEventListener('click', stopGeneration);
+        // 初始状态禁用停止按钮
+        stopButton.disabled = true;
     }
     
     // 初始化系统提示词输入框和下拉框
