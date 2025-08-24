@@ -216,9 +216,12 @@ function onMessageSend(input) {
         document.getElementById("chat-stats").textContent = usageText;
         
         // 生成完成后，重新启用Ask AI按钮，禁用停止按钮
-        if (stopButton && askAIButton) {
-            stopButton.disabled = true;
-            askAIButton.disabled = false;
+        // 重新获取按钮引用，避免作用域问题
+        const stopBtn = document.getElementById('stopGeneration') as HTMLButtonElement;
+        const askAIBtn = document.getElementById('askAI') as HTMLButtonElement;
+        if (stopBtn && askAIBtn) {
+            stopBtn.disabled = true;
+            askAIBtn.disabled = false;
         }
     };
 
@@ -227,9 +230,12 @@ function onMessageSend(input) {
         console.error(err);
         
         // 发生错误时，重新启用Ask AI按钮，禁用停止按钮
-        if (stopButton && askAIButton) {
-            stopButton.disabled = true;
-            askAIButton.disabled = false;
+        // 重新获取按钮引用，避免作用域问题
+        const stopBtn = document.getElementById('stopGeneration') as HTMLButtonElement;
+        const askAIBtn = document.getElementById('askAI') as HTMLButtonElement;
+        if (stopBtn && askAIBtn) {
+            stopBtn.disabled = true;
+            askAIBtn.disabled = false;
         }
     };
 
