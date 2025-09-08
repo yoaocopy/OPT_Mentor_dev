@@ -314,8 +314,8 @@ export const prebuiltAppConfig: AppConfig = {
   useIndexedDBCache: false,
   model_list: [
     {
-      model: "https://huggingface.co/yoaocopy/SocraticAI_1.5B-q4f16_1-MLC",
-      model_id: "SocraticAI_1.5B-q4f16_1-MLC (Hugging Face)",
+      model: "https://huggingface.co/yoaocopy/sft_model_1.5B-q4f16_1-MLC",
+      model_id: "sft_model_1.5B-q4f16_1-MLC (Hugging Face)",
       model_lib: "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-models/v0_2_48/Qwen2-1.5B-Instruct-q4f16_1-ctx4k_cs1k-webgpu.wasm",
       vram_required_MB: 795.98,
       low_resource_required: true,
@@ -324,8 +324,8 @@ export const prebuiltAppConfig: AppConfig = {
       }
     },
     {
-      model: "https://huggingface.co/yoaocopy/sft_model_1.5B-q4f16_1-MLC",
-      model_id: "sft_model_1.5B-q4f16_1-MLC (Hugging Face)",
+      model: "https://huggingface.co/yoaocopy/SocraticAI_1.5B-q4f16_1-MLC",
+      model_id: "SocraticAI_1.5B-q4f16_1-MLC (Hugging Face)",
       model_lib: "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-models/v0_2_48/Qwen2-1.5B-Instruct-q4f16_1-ctx4k_cs1k-webgpu.wasm",
       vram_required_MB: 795.98,
       low_resource_required: true,

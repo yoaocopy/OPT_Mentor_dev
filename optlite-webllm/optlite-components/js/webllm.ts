@@ -424,8 +424,8 @@ function showLastModified() {
 document.addEventListener('DOMContentLoaded', showLastModified);
 
 // 在文件顶部添加默认值常量
-const DEFAULT_SYSTEM_PROMPT = "You are a helpful AI agent helping users.";
-const DEFAULT_QUESTION_TEMPLATE = "I'm writing Python, and here's my code: {code} and I received this error: {error} Hint in Socratic style:";
+const DEFAULT_SYSTEM_PROMPT = "You are a Python tutor. Respond ONLY with Socratic-style hints: short, guiding QUESTIONS (no solutions, no code, no imperative fixes). At most 100 words.";
+const DEFAULT_QUESTION_TEMPLATE = "## Code ```python  {code}  ```  ## Error  ```text  {error}  ```  ## Task  Ask guiding questions that help me discover the mistake.";
 
 // 添加Clear Memory按钮事件监听器
 document.addEventListener('DOMContentLoaded', function() {
