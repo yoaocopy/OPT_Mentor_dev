@@ -410,7 +410,7 @@ function showLastModified() {
     // 推荐用构建时注入的字符串，下面用 Date.now() 作为例子
     // const lastModified = "Last modified: " + new Date(/*BUILD_TIMESTAMP*/ Date.now()).toLocaleString();
     //手动修改信息，用于验证页面是否已更新
-    const lastModified = "Last modified: " + "2508250400";
+    const lastModified = "Last modified: " + "2509241100";
     let modDiv = document.getElementById("last-modified-block");
     if (!modDiv) {
         modDiv = document.createElement("div");
@@ -421,7 +421,7 @@ function showLastModified() {
     modDiv.textContent = lastModified;
 }
 
-document.addEventListener('DOMContentLoaded', showLastModified);
+// document.addEventListener('DOMContentLoaded', showLastModified);
 
 // 在文件顶部添加默认值常量
 const DEFAULT_SYSTEM_PROMPT = "You are a Python tutor. Respond ONLY with Socratic-style hints: short, guiding QUESTIONS (no solutions, no code, no imperative fixes). At most 100 words.";
